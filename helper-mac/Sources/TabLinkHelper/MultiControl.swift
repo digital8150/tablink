@@ -22,6 +22,10 @@ final class MultiControl {
     private var active = false
     private var cursorCaptured = false
     private var exitX = 0.0
+    // While tablet mode is on, the PC cursor is parked here and pulled back after every
+    // move event (AssociateMouseAndCursor(0) alone is not enough on macOS: the pointer still drifts).
+    private var parkX = 0.0
+    private var parkY = 0.0
     private var exitY = 0.0
     private var tx = 0.0
     private var ty = 0.0
@@ -139,6 +143,8 @@ final class MultiControl {
             let dx = Int(event.getIntegerValueField(.mouseEventDeltaX))
             let dy = Int(event.getIntegerValueField(.mouseEventDeltaY))
             if dx != 0 || dy != 0 { moveLocked(dx: dx, dy: dy) }
+            // keep the PC pointer parked; the tablet is driven by the deltas above
+            CGWarpMouseCursorPosition(CGPoint(x: parkX, y: parkY))
             lock.unlock()
             return true
         }
@@ -315,7 +321,15 @@ final class MultiControl {
         exitX = px; exitY = py
         active = true
         cursorCaptured = true
+        let park = targetLocked() ?? monitorObject
+        if let park {
+            parkX = Double(park.left + park.right) / 2
+            parkY = Double(park.top + park.bottom) / 2
+        } else {
+            parkX = x; parkY = y
+        }
         CGAssociateMouseAndMouseCursorPosition(0)
+        CGWarpMouseCursorPosition(CGPoint(x: parkX, y: parkY))
         CGDisplayHideCursor(CGMainDisplayID())
         sink.active(true)
         if clipboardEnabled {
