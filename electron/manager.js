@@ -122,6 +122,7 @@ class Manager extends EventEmitter {
             cmd: 'audio',
             serial: s.serial,
             scrcpy: this.paths.scrcpy,
+            adb: this.paths.adb,
             source: c.audio_source,
             dup: c.audio_dup,
             buffer: c.audio_buffer,

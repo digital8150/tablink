@@ -28,7 +28,7 @@ final class AudioProcess {
         sink.audio("off")
     }
 
-    func start(serial: String?, executable: String?, source: String, dup: Bool, buffer: Int) {
+    func start(serial: String?, executable: String?, adb: String?, source: String, dup: Bool, buffer: Int) {
         stop()
         guard let serial, !serial.isEmpty else { return }
         guard let executable, !executable.isEmpty else {
@@ -45,6 +45,12 @@ final class AudioProcess {
         child.executableURL = URL(fileURLWithPath: executable)
         child.arguments = arguments
         child.standardInput = FileHandle.nullDevice
+        // scrcpy starts `adb` itself; GUI-launched apps have no Homebrew PATH, so pass the absolute path.
+        var environment = ProcessInfo.processInfo.environment
+        if let adb, !adb.isEmpty { environment["ADB"] = adb }
+        environment["PATH"] = ["/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin", environment["PATH"] ?? ""]
+            .joined(separator: ":")
+        child.environment = environment
         let stdout = Pipe(); let stderr = Pipe()
         child.standardOutput = stdout; child.standardError = stderr
         do {

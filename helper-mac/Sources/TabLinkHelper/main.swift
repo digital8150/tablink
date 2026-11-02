@@ -114,8 +114,9 @@ private final class HelperRuntime {
             let source = (command["source"] as? String) ?? "playback"
             let duplicate = (command["dup"] as? NSNumber)?.boolValue ?? false
             let buffer = (command["buffer"] as? NSNumber)?.intValue ?? 50
+            let adb = command["adb"] as? String
             commandQueue.async { [weak self] in
-                self?.audio.start(serial: serial, executable: executable, source: source, dup: duplicate, buffer: buffer)
+                self?.audio.start(serial: serial, executable: executable, adb: adb, source: source, dup: duplicate, buffer: buffer)
             }
         case "quit":
             shutdown()
