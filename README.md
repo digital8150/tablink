@@ -14,10 +14,11 @@ Tested on a Galaxy Tab S9 Ultra (Android 16) with Windows 11.
 
 | Feature | Implementation |
 |---|---|
-| Audio | Runs [scrcpy](https://github.com/Genymobile/scrcpy) in audio-only mode (`--no-video --no-window`, Android 11+) |
-| Mouse/keyboard | Starts the scrcpy server with control only and creates a virtual **UHID** USB mouse and keyboard. Android shows its own mouse cursor, so no screen mirroring is needed |
-| Edge crossing | Windows low-level input hooks. While the tablet has input, the PC cursor is hidden and held still, and the movement is forwarded to the tablet. Android's UHID mouse has no acceleration, so the tablet cursor position can be tracked exactly on the PC; push past the opposite edge to come back |
-| Connection | adb over USB, plus wireless debugging found automatically through mDNS |
+| App | Electron UI (`electron/`, `renderer/`) plus a small native helper (`helper/`, C# .NET 10 NativeAOT) that does everything latency-critical |
+| Audio | [scrcpy](https://github.com/Genymobile/scrcpy) audio-only. The default `playback` capture (Android 13+) leaves the tablet's microphone and voice recognition working; `output` captures everything but can interfere with the mic |
+| Mouse/keyboard | The helper starts the scrcpy server with control only and creates a virtual **UHID** mouse and keyboard. Android shows its own cursor, so no screen mirroring is needed |
+| Edge crossing | Windows low-level input hooks in the native helper. While the tablet has input, the PC cursor is hidden and held still and the movement is forwarded. The tablet cursor is tracked exactly (no acceleration on UHID mice) and re-synced whenever it is pushed into a screen edge or the tablet rotates |
+| Connection | adb over USB, plus wireless debugging found automatically through mDNS. With several devices attached you pick one in the device list |
 
 ## Requirements
 
@@ -33,8 +34,9 @@ Download `TabLink-win64.zip` from [Releases](../../releases), unzip it and run `
 ### Run from source
 ```powershell
 winget install Genymobile.scrcpy     # provides adb and scrcpy-server
-pip install -r requirements.txt
-python app.py
+npm install
+npm run helper                       # dotnet publish → build/helper/TabLinkHelper.exe (needs .NET 10 SDK + VS C++ tools)
+npm start
 ```
 You can also point the `SCRCPY_DIR` environment variable at a scrcpy folder.
 
@@ -53,8 +55,7 @@ Samsung Keyboard switches language with a hardware keyboard using **Shift+Space*
 
 ## Build
 ```powershell
-pip install pyinstaller
-python build.py      # → dist/TabLink-win64.zip
+npm run build        # → dist/TabLink and dist/TabLink-win64.zip
 ```
 
 ## License

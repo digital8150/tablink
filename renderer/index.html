@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>TabLink</title>
+  </head>
+  <body>
+    <header>
+      <img src="../assets/icon.png" alt="" /><strong>TabLink</strong><span id="pill">● 연결 안 됨</span>
+    </header>
+    <main>
+      <section class="left">
+        <article class="card control">
+          <div class="heading">
+            <div>
+              <h2>멀티 컨트롤</h2>
+              <small>마우스를 화면 밖으로 밀면 태블릿으로</small>
+            </div>
+            <label class="switch"
+              ><input type="checkbox" data-key="mc" aria-label="멀티 컨트롤" /><span></span
+            ></label>
+          </div>
+          <svg
+            id="diagram"
+            viewBox="0 0 510 130"
+            role="img"
+            aria-label="모니터와 태블릿 배치. 클릭하여 방향 선택"
+          ></svg>
+          <div id="mcstate" class="status"></div>
+          <div class="label">태블릿 위치 <small>그림을 클릭해도 바뀝니다</small></div>
+          <div class="segments" id="side">
+            <label><input type="radio" name="side" value="left" />왼쪽</label
+            ><label><input type="radio" name="side" value="right" />오른쪽</label
+            ><label><input type="radio" name="side" value="top" />위</label
+            ><label><input type="radio" name="side" value="bottom" />아래</label>
+          </div>
+          <div class="row">
+            <label for="monitor">기준 모니터</label
+            ><select id="monitor" data-key="monitor"></select>
+          </div>
+          <div class="row"><label for="speed">태블릿 커서 속도</label><output id="speedValue"></output></div>
+          <input id="speed" type="range" min="0.3" max="3" step="0.1" />
+          <div class="row">
+            <span>클립보드 공유</span
+            ><label class="switch"
+              ><input type="checkbox" data-key="clipboard" aria-label="클립보드 공유" /><span></span
+            ></label>
+          </div>
+          <div class="row">
+            <label for="hangul">한/영 키</label
+            ><select id="hangul" data-key="hangul">
+              <option value="shift_space">Shift+Space (삼성 키보드)</option>
+              <option value="lang1">한/영 키 그대로</option>
+            </select>
+          </div>
+          <div class="hint">Ctrl + Alt + M　 PC ↔ 태블릿 즉시 전환</div>
+        </article>
+        <article class="card activity">
+          <h2>활동</h2>
+          <div id="log" tabindex="0"></div>
+        </article>
+      </section>
+      <section class="right">
+        <article class="card devices">
+          <h2>기기</h2>
+          <div id="deviceList" tabindex="0"></div>
+          <div id="deviceHint" class="status"></div>
+          <div class="segments" id="transport">
+            <label><input type="radio" name="transport" value="auto" />자동</label
+            ><label><input type="radio" name="transport" value="usb" />USB</label
+            ><label><input type="radio" name="transport" value="wifi" />Wi-Fi</label>
+          </div>
+          <div id="transportHint" class="hint"></div>
+          <div class="row">
+            <span>무선 디버깅 기기 자동 연결</span
+            ><label class="switch"
+              ><input
+                type="checkbox"
+                data-key="auto_wifi"
+                aria-label="무선 디버깅 기기 자동 연결" /><span></span
+            ></label>
+          </div>
+          <div class="buttons">
+            <button id="connect">IP로 연결</button><button id="pair">무선 페어링</button>
+          </div>
+        </article>
+        <article class="card sound">
+          <h2>소리</h2>
+          <div class="row">
+            <span>태블릿 소리를 PC에서 재생</span
+            ><label class="switch"
+              ><input type="checkbox" data-key="audio" aria-label="태블릿 소리를 PC에서 재생" /><span></span
+            ></label>
+          </div>
+          <div class="row">
+            <label for="audio_source">캡처 방식</label
+            ><select id="audio_source" data-key="audio_source">
+              <option value="playback">앱 소리만 캡처 (권장 · 마이크/음성인식 정상)</option>
+              <option value="output">전체 출력 캡처 (마이크·음성인식이 안 될 수 있음)</option>
+            </select>
+          </div>
+          <div class="row">
+            <span>태블릿 스피커에서도 재생</span
+            ><label class="switch"
+              ><input
+                type="checkbox"
+                data-key="audio_dup"
+                aria-label="태블릿 스피커에서도 재생" /><span></span
+            ></label>
+          </div>
+          <div id="dupHint" class="hint"></div>
+          <div class="row"><label for="buffer">지연 버퍼</label><output id="bufferValue"></output></div>
+          <input id="buffer" type="range" min="20" max="300" step="10" />
+        </article>
+        <article class="card options">
+          <h2>옵션</h2>
+          <div class="row">
+            <span>Windows 시작 시 자동 실행</span
+            ><label class="switch"
+              ><input
+                type="checkbox"
+                data-key="autostart"
+                aria-label="Windows 시작 시 자동 실행" /><span></span
+            ></label>
+          </div>
+          <div class="row">
+            <span>창을 닫으면 트레이로</span
+            ><label class="switch"
+              ><input
+                type="checkbox"
+                data-key="close_to_tray"
+                aria-label="창을 닫으면 트레이로" /><span></span
+            ></label>
+          </div>
+        </article>
+        <footer>
+          <button class="primary" id="hide">트레이로 숨기기</button><button id="quit">종료</button>
+        </footer>
+      </section>
+    </main>
+    <dialog id="modal">
+      <form method="dialog">
+        <h2 id="modalTitle"></h2>
+        <label>IP 주소 및 포트<input id="endpoint" placeholder="192.168.0.10:37000" /></label
+        ><label id="codeLabel">6자리 페어링 코드<input id="code" inputmode="numeric" maxlength="6" /></label>
+        <div id="result" class="status"></div>
+        <div class="buttons">
+          <button value="cancel">닫기</button><button id="submit" type="button" class="primary">확인</button>
+        </div>
+      </form>
+    </dialog>
+    <script src="app.js"></script>
+  </body>
+</html>
