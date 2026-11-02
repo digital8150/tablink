@@ -3,9 +3,21 @@ const { EventEmitter } = require('events'),
   path = require('path'),
   cfgmod = require('./config');
 class Manager extends EventEmitter {
-  constructor(cfg, helper, devices, dir, version, smoke) {
+  constructor(cfg, helper, devices, dir, version, smoke, paths) {
     super();
-    Object.assign(this, { cfg, helper, devices, dir, version, smoke });
+    Object.assign(this, {
+      cfg,
+      helper,
+      devices,
+      dir,
+      version,
+      smoke,
+      paths: paths || {
+        adb: dir && path.join(dir, process.platform === 'darwin' ? 'adb' : 'adb.exe'),
+        scrcpy: dir && path.join(dir, process.platform === 'darwin' ? 'scrcpy' : 'scrcpy.exe'),
+        server: dir && path.join(dir, 'scrcpy-server'),
+      },
+    });
     this.state = {
       devices: [],
       selectedId: cfg.device_id,
@@ -94,8 +106,8 @@ class Manager extends EventEmitter {
     this.helper.send({
       cmd: 'attach',
       serial: this.state.session.serial,
-      adb: this.dir && path.join(this.dir, 'adb.exe'),
-      server: this.dir && path.join(this.dir, 'scrcpy-server'),
+      adb: this.paths.adb,
+      server: this.paths.server,
       version: this.version,
     });
     this.state.ctrl = 'starting';
@@ -109,7 +121,7 @@ class Manager extends EventEmitter {
         ? {
             cmd: 'audio',
             serial: s.serial,
-            scrcpy: this.dir && path.join(this.dir, 'scrcpy.exe'),
+            scrcpy: this.paths.scrcpy,
             source: c.audio_source,
             dup: c.audio_dup,
             buffer: c.audio_buffer,

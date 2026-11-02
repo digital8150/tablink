@@ -40,6 +40,16 @@ npm start
 ```
 You can also point the `SCRCPY_DIR` environment variable at a scrcpy folder.
 
+### macOS (Apple Silicon)
+```sh
+brew install scrcpy                 # also installs android-platform-tools
+npm install
+npm run helper:mac
+npm start
+npm run build:mac
+```
+The macOS build is Apple Silicon (`arm64`) only, unsigned, and depends on `scrcpy`/`adb` from Homebrew. Allow the `TabLinkHelper` binary and the Electron app as launched in **System Settings → Privacy & Security → Accessibility** and **Input Monitoring**.
+
 ## Usage
 
 1. Connect the tablet over USB and tap **Allow** on the USB debugging prompt.

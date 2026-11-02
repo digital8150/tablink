@@ -32,6 +32,8 @@ body {
     12px 'Segoe UI Variable Text',
     'Segoe UI',
     'Malgun Gothic',
+    -apple-system,
+    'Apple SD Gothic Neo',
     sans-serif;
   overflow: hidden;
 }
@@ -42,6 +44,10 @@ header {
   gap: 9px;
   padding: 0 150px 0 18px;
   -webkit-app-region: drag;
+}
+/* macOS: traffic-light buttons sit on the left, no caption overlay on the right */
+html[data-platform='mac'] header {
+  padding: 0 18px 0 78px;
 }
 header img {
   width: 23px;
@@ -244,7 +250,7 @@ input[type='range'] {
   overflow: auto;
   padding: 6px;
   font:
-    11px Consolas,
+    11px Consolas, Menlo,
     monospace;
   white-space: pre-wrap;
   color: var(--muted);

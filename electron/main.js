@@ -5,8 +5,9 @@ const config = require('./config'),
   Helper = require('./helper'),
   Devices = require('./devices'),
   Manager = require('./manager');
+const isMac = process.platform === 'darwin';
 app.setName('TabLink');
-app.setAppUserModelId('TabLink');
+if (process.platform === 'win32') app.setAppUserModelId('TabLink');
 const locked = app.requestSingleInstanceLock();
 if (!locked) {
   app.quit();
@@ -26,6 +27,7 @@ function show() {
   }
 }
 app.on('second-instance', show);
+if (isMac) app.on('activate', show);
 function overlay() {
   return {
     color: nativeTheme.shouldUseDarkColors ? '#111214' : '#F2F4F7',
@@ -109,18 +111,22 @@ async function quit() {
 app.whenReady().then(async () => {
   const cfg = config.load(),
     dir = config.scrcpyDir(app.isPackaged),
-    version = await config.version(dir);
+    paths = {
+      adb: config.adbPath(dir, app.isPackaged),
+      scrcpy: config.scrcpyPath(dir, app.isPackaged),
+      server: config.serverPath(dir),
+    },
+    version = await config.version(dir, app.isPackaged);
   helper = new Helper(config.helper(app.isPackaged), (msg) => manager.log(msg));
-  manager = new Manager(cfg, helper, new Devices(dir && path.join(dir, 'adb.exe')), dir, version, smoke);
-  win = new BrowserWindow({
+  manager = new Manager(cfg, helper, new Devices(paths.adb), dir, version, smoke, paths);
+  const windowOptions = {
     width: 960,
     height: 660,
     resizable: false,
     maximizable: false,
     show: false,
     backgroundColor: overlay().color,
-    titleBarStyle: 'hidden',
-    titleBarOverlay: overlay(),
+    titleBarStyle: isMac ? 'hiddenInset' : 'hidden',
     autoHideMenuBar: true,
     icon: path.join(__dirname, '..', 'assets', 'icon.png'),
     webPreferences: {
@@ -129,7 +135,9 @@ app.whenReady().then(async () => {
       nodeIntegration: false,
       sandbox: true,
     },
-  });
+  };
+  if (!isMac) windowOptions.titleBarOverlay = overlay();
+  win = new BrowserWindow(windowOptions);
   win.setMenu(null);
   win.on('ready-to-show', () => {
     if (!process.argv.includes('--tray') || smoke) show();
@@ -141,11 +149,11 @@ app.whenReady().then(async () => {
       else quit();
     }
   });
-  nativeTheme.on('updated', () => win.setTitleBarOverlay(overlay()));
+  if (!isMac) nativeTheme.on('updated', () => win.setTitleBarOverlay(overlay()));
   win.webContents.on('console-message', (_e, level, message) => {
     if (level >= 2) console.error('renderer:', message);
   });
-  tray = new Tray(path.join(__dirname, '..', 'assets', 'icon.ico'));
+  tray = new Tray(path.join(__dirname, '..', 'assets', isMac ? 'icon.png' : 'icon.ico'));
   tray.on('click', show);
   manager.on('state', (s) => {
     if (!win.isDestroyed()) win.webContents.send('state', s);

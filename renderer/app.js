@@ -1,5 +1,6 @@
 const $ = (s) => document.querySelector(s),
   api = window.tablink;
+if (/Mac/.test(navigator.userAgent)) document.documentElement.dataset.platform = 'mac';
 let state,
   layoutKey = '',
   targetRect = null,

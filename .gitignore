@@ -5,3 +5,5 @@ dist/
 node_modules/
 helper/bin/
 helper/obj/
+helper-mac/.build/
+helper-mac/.swiftpm/
