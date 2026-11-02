@@ -209,3 +209,11 @@ app.whenReady().then(async () => {
     }, 4000);
 });
 app.on('window-all-closed', () => {});
+// Cmd+Q (and any other app-level quit) must run the full shutdown: the window's close
+// handler only hides to the tray, so without this the app never really exits on macOS.
+app.on('before-quit', (e) => {
+  if (!quitting) {
+    e.preventDefault();
+    quit();
+  }
+});
